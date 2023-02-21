@@ -116,7 +116,11 @@ def fetch_and_organize_data(data_name='mnli', save_to_cur_dic=False):
 
 
 def gen_contradiction_gpt3(hypos, prompt, model="text-davinci-003"):
-    input_texts = [' '.join([prompt, hypo]) for hypo in hypos]
+    if '<premise>' in prompt and '<hypothesis>' in prompt:
+        input_texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo)\
+                       for prem, hypo in zip(prems, hypos)]
+    else:
+        input_texts = [' '.join([prompt, hypo]) for hypo in hypos]
     
     start = time.time()
     openai.api_key = '<API-key>'
