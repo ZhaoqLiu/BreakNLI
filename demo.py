@@ -119,7 +119,7 @@ def gen_contradiction_gpt3(hypos, prompt, model="text-davinci-003"):
     input_texts = [' '.join([prompt, hypo]) for hypo in hypos]
     
     start = time.time()
-    openai.api_key = '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'
+    openai.api_key = '<API-key>'
     response = openai.Completion.create(model=model, prompt=input_texts, temperature=0, max_tokens=512)
     # 150,000 tokens/min, 200 tokens per instance
     end = time.time()
@@ -138,6 +138,30 @@ def gen_contradiction_gpt3(hypos, prompt, model="text-davinci-003"):
     return np.array(generated_texts)
 
 
+def gen_contradiction_flant5(prems, hypos, prompt, model='flan-t5-base'):
+    model = 'google/' + model
+    flant5 = AutoModelForSeq2SeqLM.from_pretrained(model)
+    tokenizer = AutoTokenizer.from_pretrained(model)
+    
+    if '<premise>' in prompt and '<hypothesis>' in prompt:
+        input_texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo)\
+                       for prem, hypo in zip(prems, hypos)]
+    else:
+        input_texts = [' '.join([prompt, hypo]) for hypo in hypos]
+        
+    # print('Input texts: ', input_texts)
+    inputs = tokenizer(input_texts, return_tensors="pt", padding=True)
+    
+    start = time.time()
+    outputs = flant5.generate(**inputs, max_length=256)
+    end = time.time()
+    
+    generated_texts = np.array(tokenizer.batch_decode(outputs, skip_special_tokens=True))
+    print('contradictions: ', generated_texts)
+    print('%.4fs for each generation with model: %s' %((end-start)/len(input_texts), model))
+    return generated_texts
+
+
 def nli_predict(model, tokenizer, statements):
     inputs = tokenizer(statements, return_tensors='pt', padding=True)
     outputs = model.generate(**inputs)
@@ -152,9 +176,10 @@ def demo(dataset, model, tokenizer, gen_cont_prompt, nli_prompt, func_gen_cont, 
     # and generate 10 contradictions for each hypothesis.
     sampled_index = np.random.choice(np.arange(len(dataset['train']['hypothesis'])), size=k)
     sampled_hypos = np.array(dataset['train']['hypothesis'])[sampled_index]
+    print(sampled_hypos)
     sampled_prems = np.array(dataset['train']['premise'])[sampled_index]
     sampled_labels = np.array(dataset['train']['label'])[sampled_index]
-    generated_texts = func_gen_cont(sampled_hypos, gen_cont_prompt)
+    generated_texts = func_gen_cont(sampled_prems, sampled_hypos, gen_cont_prompt)
     
     total_suc_cont = 0
     total_suc_break = 0
