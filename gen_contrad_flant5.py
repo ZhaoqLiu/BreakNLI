@@ -1,0 +1,75 @@
+import time
+import torch
+import argparse
+import numpy as np
+
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+from utils import *
+
+# generate contradicting statement of hypothesis using Flan-T5 of huggingface
+def gen_contradiction_flant5(prems, hypos, prompt, num_generation, model='flan-t5-large'):
+    input_texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo)\
+                   for prem, hypo in zip(prems, hypos)]
+    
+    model = 'google/' + model
+    flant5 = AutoModelForSeq2SeqLM.from_pretrained(model).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(model)
+
+    print('Generating using prompt: %s' %prompt)
+    inputs = tokenizer(input_texts, return_tensors="pt", padding=True).to(device)
+    
+    start = time.time()
+    outputs = flant5.generate(**inputs,
+                              max_length=256, 
+                              num_beams=2*num_generation, 
+                              temperature=1, 
+                              num_return_sequences=num_generation, 
+                              diversity_penalty=0.8, 
+                              num_beam_groups=num_generation
+                             )
+    end = time.time()
+    
+    generated_texts = np.array(tokenizer.batch_decode(outputs, skip_special_tokens=True)).reshape(-1, num_generation)
+    print('Generation for %d hypotheses completed!' %(len(generated_texts))) 
+    print('%.4fs for each generation with model: %s' %((end-start)/len(input_texts), model))
+
+    del flant5, inputs, outputs
+    torch.cuda.empty_cache()
+    return generated_texts
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Test of contradiction generation using FlanT5')
+    parser.add_argument('-n', '--name', type=str, default='mnli', 
+                        choices=['mnli', 'snli', 'anli', 'qnli'], 
+                        help='name of the NLI dataset')
+    parser.add_argument('-s', '--size', type=int, default=10,
+                        help='sample size')
+    parser.add_argument('-gm', '--genmodel', type=str, default='flan_t5_base', 
+                        choices=['flan_t5_base', 'flan_t5_large', 'flan_t5_xl'],
+                        help='model used to generate contradictive statements')
+    args = parser.parse_args()
+
+    gen_model = args.genmodel.replace('_', '-')
+    dataset = fetch_and_organize_data(args.name)
+
+    prompt_texts = [
+        'Generate 10 statements contradicting to the following hypothesis. <hypothesis>',
+        'Generate a statement contradicting to the following hypothesis. <hypothesis>',
+        '<premise> Hypothesis: <hypothesis> Generate a contradictive statement of the hypothesis.'
+    ]
+    
+    np.random.seed(seed=25)
+    sampled_index = np.random.choice(np.arange(len(dataset['train']['hypothesis'])), size=args.size)
+    sampled_hypos = np.array(dataset['train']['hypothesis'])[sampled_index]
+    sampled_prems = np.array(dataset['train']['premise'])[sampled_index]
+    sampled_labels = np.array(dataset['train']['label'])[sampled_index]
+
+    prompt_text = 'Generate a statement contradicting to the following statement. <hypothesis>'
+
+    generated_texts = gen_contradiction_flant5(sampled_prems, sampled_hypos, prompt_text, 10, gen_model)
+    print('Show example:')
+    print('Sample premise: %s' %sampled_prems[0])
+    print('Sample hypothesis: %s' %sampled_hypos[0])
+    print('Generated contradictive statements:\n', generated_texts[0])
