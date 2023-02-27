@@ -9,7 +9,7 @@ from gen_contrad_flant5 import gen_contradiction_flant5
 from utils import *
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-api_key = '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'
+api_key = '<API-KEY>'
 
 
 def demo(dataset, nli_model, gen_model, gen_prompt, nli_prompt, sample_size, generation_size):
@@ -17,7 +17,7 @@ def demo(dataset, nli_model, gen_model, gen_prompt, nli_prompt, sample_size, gen
     # randomly select sample_size instances from the given dataset
     # and generate 10 contradictions for each hypothesis.
     ignore_neutral_idx = np.where(np.array(dataset['train']['label']) == 0)[0]
-    
+
     sampled_index = np.random.choice(np.arange(len(ignore_neutral_idx)), size=sample_size)
     sampled_hypos = dataset['train']['hypothesis'][ignore_neutral_idx][sampled_index]
     sampled_prems = dataset['train']['premise'][ignore_neutral_idx][sampled_index]
