@@ -54,3 +54,111 @@ Run `evaluation.py` to run a demo for the experiment of breaking NLI system. Sim
   ```sh
   python evaluation.py -n mnli -s 10 -gm gpt3 -nm flan_t5_base
   ```
+
+## Examples
+
+### Example 1 - Contradiction could happen at different aspects of the sentence
+
+Original primise: For example, the most recent edition of the Unified Agenda (April 2000) describes <ins>4,441 rulemaking actions</ins> under development or recently completed by 60 federal departments and agencies.
+
+Original hypothesis: <ins>All the development</ins> happened with the individual federal departments and agencies.
+
+Original label: 2
+
+Selected contradictions: 
+
+'All the development happened with the individual state departments and agencies.'
+
+'There are no federal departments and agencies.'
+ 
+'There was no development at all.'
+ 
+'Federal departments and agencies are not involved in the development.'
+ 
+'There are no federal departments and agencies that are involved in development.'
+ 
+Generated labels: [2 2 2 2 2]
+
+### Example 2 
+
+Original primise: The alligator farm here is something of a curiosity.
+
+Original hypothesis: The turtle farm is something of an oddity.
+
+Original label: 2
+
+Selected contradictions:
+
+'The turtle farm is a common sight.'
+
+'It is a normal farm.'
+
+'No one has ever seen a turtle farm before'
+
+'There are many turtle farms.' "It's a normal farm."
+
+ 'Nobody knows anything about the turtle farm.'
+ 
+ "It's a normal place."
+ 
+ 'The turtle farm is a normal place.'
+ 
+Generated labels: [2 2 2 2 2 2 2 2]
+
+### Example 3 - Nonsense generated statements
+
+Original primise: You were going to say?
+
+Original hypothesis: You finished your previous sentence.
+
+Original label: 2
+
+Selected contradictions:
+
+'There are no people in the room.'
+
+"We can't do anything about it."
+
+ 'Nobody knows how to swim.'
+ 
+Generated labels: [2 2 2]
+
+### Example 4 - Nonsense daily conversation
+
+Original primise: same and uh we'll.
+
+Original hypothesis: I disagree.
+
+Original label: 2
+
+Selected contradictions:
+
+'I am a believer.'
+
+'I agree with you.'
+
+'I am a believer in God.'
+
+ "It's impossible to tell the difference between the two."
+ 
+ "It's impossible for me to believe that." 'I agree with him.'
+ 
+Generated labels: [1 0 1 1 2 1]
+
+### Example 5 - Legit inequality
+
+Original primise: These tentacled creatures may look terrible under water, but once out in the air they're revealed as small and not dangerous.
+
+Original hypothesis: They look less threatening when they are out of the water.
+
+Original label: 0
+
+Selected contradictions:
+
+'They look more threatening when they are in the water.'
+ 
+ ...
+ 
+'When they are in the water they look more dangerous.']
+ 
+Generated labels: [0 ... 0]
