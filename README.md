@@ -5,10 +5,10 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 3. Evaluate whether the following 3 triangles hold or not by $M(p_i, h_i^k)$.
 ![Image text](imgs/triangles.png)
 
-Our hypothesis:  
+**Our hypothesis:**  
 &ensp;&ensp; If the system is not able to change the label of an example accordingly, then the predictions are based on shallow patterns as opposed to a deep language understanding.
 
-NLI models:
+**NLI models:**
 * google/flan-t5-base (tested)
 * google/flan-t5-large (tested)
 * google/flan-t5-xl (tested)
@@ -20,7 +20,7 @@ NLI models:
 * microsoft/deberta-large-mnli
 * microsoft/deberta-xlarge-mnli
 
-Problems to be looked into:  
+**Problems to be looked into:**  
 1. For pair $(p_i,h_i)$ whose $M(p_i, h_i)=Contradiction$ (Triangle 2), the generation of contradictive statements is hard for the current way. Because two sentences could contradict each other in many aspects, inducing legit inequality of the triangles. The following is a typical example where $M(p, h) = M(h, h^k)=M(p,h^k)=Contradiction$.
     > premise: The house is surprisingly small and simple, with one bedroom, a tiny kitchen, and a couple of social rooms.  
     > hypothesis: The house is very large and boasts over ten bedrooms, a huge kitchen, and a full sized olympic pool.  
@@ -29,7 +29,7 @@ Problems to be looked into:
 2. Generation parameters of $G$ needs further consideration.
 3. For the cases that $M(p, h^k)$ fails to comply the relationship indicated by the triangles (1 & 3), does it really break the NLI system? We need to inspect the generated statements.
 
-Temporary results:
+**Temporary results:**
 | Inequal/strictly inequal | Flan-T5-base  | Flan-T5-large | Flan-T5-xl   |
 | ------------------------ | :-----------: | :-----------: | :----------: |
 | Entailment               | 15.61%/20.34% | 13.13%/20.05% | 8.83%/16.82% |
