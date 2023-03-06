@@ -1,6 +1,45 @@
 # BreakNLI
-This project is the experiment of breaking NLI system
+This project concerns the evaluation of NLI systems. The setting could be formulated as follows: 
+1. Given an NLI dataset $D= \lbrace(x_1, y_1),...,(x_n, y_n) \rbrace$, where we have the premise-hypothesis pair $x_i=\lbrace p_i, h_i\rbrace$ and the label $y_i \in \lbrace Entailment, Contradiction, Neutral \rbrace$, and an NLI model $M$, where $M(p_i, h_i)=y_i$.
+2. Using `Flan-T5-xl` (referred to $G$), generate 5 statements that contradicts the hypothesis, namely $G(h_i)=\lbrace h_i^1, ...,h_i^k,..., h_i^5 \rbrace$ and $M(h_i,h_i^k)=Contradiction$.
+3. Evaluate whether the following 3 triangles hold or not by $M(p_i, h_i^k)$.
 ![Image text](imgs/triangles.png)
+
+Our hypothesis:  
+&ensp;&ensp; If the system is not able to change the label of an example accordingly, then the predictions are based on shallow patterns as opposed to a deep language understanding.
+
+NLI models:
+* google/flan-t5-base (tested)
+* google/flan-t5-large (tested)
+* google/flan-t5-xl (tested)
+* google/flan-t5-xxl
+* facebook/bart-large-mnli
+* roberta-large-mnli
+* valhalla/distilbart-mnli-12-1
+* microsoft/deberta-base-mnli
+* microsoft/deberta-large-mnli
+* microsoft/deberta-xlarge-mnli
+
+Problems to be looked into:  
+1. For pair $(p_i,h_i)$ whose $M(p_i, h_i)=Contradiction$ (Triangle 2), the generation of contradictive statements is hard for the current way. Because two sentences could contradict each other in many aspects, inducing legit inequality of the triangles. The following is a typical example where $M(p, h) = M(h, h^k)=M(p,h^k)=Contradiction$.
+    > premise: The house is surprisingly small and simple, with one bedroom, a tiny kitchen, and a couple of social rooms.  
+    > hypothesis: The house is very large and boasts over ten bedrooms, a huge kitchen, and a full sized olympic pool.  
+    > generated hypothesis: The house is very small and boasts over ten bedrooms, a huge kitchen, and a full sized olympic pool.
+    > 
+2. Generation parameters of $G$ needs further consideration.
+3. For the cases that $M(p, h^k)$ fails to comply the relationship indicated by the triangles (1 & 3), does it really break the NLI system? We need to inspect the generated statements.
+
+Temporary results:
+| Inequal/strictly inequal | Flan-T5-base  | Flan-T5-large | Flan-T5-xl   |
+| ------------------------ | :-----------: | :-----------: | :----------: |
+| Entailment               | 15.61%/20.34% | 13.13%/20.05% | 8.83%/16.82% |
+| Contradiction            | 6.49%/12.19%  | 4.41%/9.95%   | 3.01%/7.09%  |
+| Overall                  | 11.03%/16.24% | 8.72%/14.93%  | 5.83%/11.81% |
+
+Inequal: At least 1 (among 5) $M(p, h^k)$ is given the opposite label of the label that it should have been predicted. For instance, given $M(p,h)=Contradiction$ and $M(h, h^k)=Entailment$, $M(p, h^k)=Entailment$.  
+Strictly inequal: At least 1 (among 5) $M(p, h^k)$ does not comply with the relationship indicated by the corresponding triangle. For instance, given $M(p,h)=Contradiction$ and $M(h, h^k)=Entailment$, $M(p, h^k)=Entailment\mid Neutral$.  
+Entailment: Results for premise-hypothesis pairs whose $M(p, h)=Entailment$.  
+
 ## Requirements
 The environment should meet the following requirements:
   ```markdown
