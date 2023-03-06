@@ -1,5 +1,6 @@
 # BreakNLI
 This project is the experiment of breaking NLI system
+![Image text](imgs/triangles.png)
 ## Requirements
 The environment should meet the following requirements:
   ```markdown
