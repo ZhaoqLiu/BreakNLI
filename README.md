@@ -1,6 +1,7 @@
 # BreakNLI
 This project concerns the evaluation of NLI systems. The setting could be formulated as follows: 
-1. Given an NLI dataset $D= \lbrace(x_1, y_1),...,(x_n, y_n) \rbrace$, where we have the premise-hypothesis pair $x_i=\lbrace p_i, h_i\rbrace$ and the label $y_i \in \lbrace Entailment, Contradiction, Neutral \rbrace$, and an NLI model $M$, where $M(p_i, h_i)=y_i$.
+1. Given an NLI dataset $D= \lbrace(x_1, y_1),...,(x_n, y_n) \rbrace$, where we have the premise-hypothesis pair $x_i=\lbrace p_i, h_i\rbrace$ and the label $y_i \in \lbrace Entailment, Contradiction, Neutral \rbrace$, and an NLI model $M$, where $M(p_i, h_i)=\hat{y}_i$ w.r.t. true label $y_i$.
+2. Pick out pairs that $M(p, h)=\hat y=y$.
 2. Using `Flan-T5-xl` (referred to $G$), generate 5 statements that contradicts the hypothesis, namely $G(h_i)=\lbrace h_i^1, ...,h_i^k,..., h_i^5 \rbrace$ and $M(h_i,h_i^k)=Contradiction$.
 3. Evaluate whether the following 3 triangles hold or not by $M(p_i, h_i^k)$.
 ![Image text](imgs/triangles.png)
@@ -27,7 +28,8 @@ This project concerns the evaluation of NLI systems. The setting could be formul
     > generated hypothesis: The house is very small and boasts over ten bedrooms, a huge kitchen, and a full sized olympic pool.
     > 
 2. Generation parameters of $G$ needs further consideration.
-3. For the cases that $M(p, h^k)$ fails to comply the relationship indicated by the triangles (1 & 3), does it really break the NLI system? We need to inspect the generated statements.
+3. For the cases that $M(p, h^k)$ fails to comply with the relationship indicated by the triangles (1 & 3), does it really break the NLI system? We need to inspect the generated statements.
+4. We are using the pairs that could be correctly perceived by the NLI system. Should be expect the system to make 100-percent in evaluation?
 
 **Temporary results:**
 | Inequal/strictly inequal | Flan-T5-base  | Flan-T5-large | Flan-T5-xl   |
