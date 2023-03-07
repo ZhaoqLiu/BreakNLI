@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 
 import torch
 
@@ -103,23 +104,48 @@ def text_label_to_id(text_labels):
     return np.array([map_dict.get(text.lower(), 1) for text in text_labels])
 
 
-def batch_it(data, batch_size):
+def batch_it(data, batch_size, keep_tail=False):
     batched_data = []
-    for i in range(int(len(data) / batch_size) - 1):
+    upper = int(len(data) / batch_size) + 1 if keep_tail else int(len(data) / batch_size)
+    for i in range(upper):
         batched_data.append(data[i * batch_size: (i+1) * batch_size])
+        
+    if len(batched_data[-1]) == 0:
+        batched_data = batched_data[:-1]
+        
+    if not keep_tail:
+        batched_data = np.array(batched_data)
+        
     return batched_data
 
 
-def nli_predict(model, tokenizer, statements):
+def nli_predict(model, tokenizer, premises, 
+                hypotheses, prompt, batch_size, 
+                description=None):
+    
+    if prompt is not None:
+        texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo)
+                      for prem, hypo in zip(premises, hypotheses)]
+    batched_texts = batch_it(texts, batch_size=batch_size, keep_tail=True)
+    
+    predictions = None
+    for batch in tqdm(batched_texts, desc=description):
+        with torch.no_grad():
+            inputs = tokenizer(batch, return_tensors='pt', padding='longest').to(device)
+            outputs = model.generate(**inputs)
+        pred = tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-    with torch.no_grad():
-        inputs = tokenizer(statements, return_tensors='pt', padding='longest').to(device)
-        outputs = model.generate(**inputs)
-    pred = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-    pred_ids = text_label_to_id(pred)
-    del inputs, outputs
-    torch.cuda.empty_cache()
-    return pred_ids
+        pred_ids = text_label_to_id(pred)
+        
+        if predictions is None:
+            predictions = pred_ids
+        else:
+            predictions = np.append(predictions, pred_ids)
+        
+        del inputs, outputs
+        torch.cuda.empty_cache()
+    
+    return predictions
 
 
 def sample_result(results, idx=None):
@@ -133,3 +159,37 @@ def sample_result(results, idx=None):
     print('Original label:', sampled_labels[idx])
     print('Selected contradictions:', selected_conts[idx])
     print('Generated labels:', break_preds[idx])
+
+
+def evaluate_results(label, preds, generate_ent_for_con):
+    ine, s_ine = 0, 0
+    
+    if generate_ent_for_con:
+        label = 0
+        
+    for p in preds:
+        if label in p:
+            ine += 1
+        if label in p or 1 in p:
+            s_ine += 1
+            
+    return ine, s_ine
+
+
+def show_results(labels, preds, con_con):
+    ent_idx = np.where(labels==0)[0]
+    ine_ent, s_ine_ent = evaluate_results(0, preds[ent_idx], con_con)
+    print('Class of Entailment:')
+    print('%.2f%% is inequal triangle; %.2f%% is strictly inequal triangle.' %(
+        ine_ent/len(ent_idx)*100, s_ine_ent/len(ent_idx)*100))
+    
+    con_idx = np.where(labels==2)[0]
+    ine_con, s_ine_con = evaluate_results(2, preds[con_idx], con_con)
+    print('Class of Entailment:')
+    print('%.2f%% is inequal triangle; %.2f%% is strictly inequal triangle.' %(
+        ine_con/len(con_idx)*100, s_ine_con/len(con_idx)*100))
+    
+    num_label = len(labels)
+    print('Overall results:')
+    print('%.2f%% is inequal triangle; %.2f%% is strictly inequal triangle.' %(
+        (ine_ent+ine_con)/num_label*100, (s_ine_ent+s_ine_con)/num_label*100))
