@@ -7,7 +7,7 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 from utils import *
 
 # generate contradicting statement of hypothesis using Flan-T5 of huggingface
-def gen_contradiction_flant5(prems, hypos, prompt, num_generation, model='flan-t5-large'):
+def gen_contradiction_flant5(prems, hypos, prompt, num_generation, model='flan-t5-base'):
     input_texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo)\
                    for prem, hypo in zip(prems, hypos)]
     
@@ -36,6 +36,58 @@ def gen_contradiction_flant5(prems, hypos, prompt, num_generation, model='flan-t
     del flant5, inputs, outputs
     torch.cuda.empty_cache()
     return generated_texts
+
+def generate_raw_statements(dataset, lan_model, 
+                            gen_prompt, batch_size,
+                            data_dir,
+                            generation_size=10, 
+                            num_inst_each_class=None,
+                            model_saved_path=None):
+    if len(gen_prompt) == 2:
+        generate_statement_by_label = True
+    else:
+        generate_statement_by_label = False
+
+    print('Generation prompt:', gen_prompt)
+    entail_idx = np.where(np.array(dataset['label']) == 0)[0]
+    contrad_idx = np.where(np.array(dataset['label']) == 2)[0]
+    
+    cut_idx = min(len(entail_idx), len(contrad_dix)) if num_inst_each_class is None else num_inst_each_class
+    print('Generating hypothesis using model %s with %d instances for each class (0 & 2)' %(lan_model, cut_idx))
+    select_idx = np.append(entail_idx[:cut_idx], contrad_idx[:cut_idx])
+
+    dataset['premise'] = dataset['premise'][select_idx]
+    dataset['hypothesis'] = dataset['hypothesis'][select_idx]
+    dataset['label'] = dataset['label'][select_idx]
+
+    premises = batch_it(dataset['premise'], batch_size=batch_size, keep_tail=True)
+    hypotheses = batch_it(dataset['hypothesis'], batch_size=batch_size, keep_tail=True)
+    labels = batch_it(dataset['label'], batch_size=batch_size, keep_tail=True)
+    
+    lan_model = 'google/' + lan_model
+    if model_saved_path is not None:
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_saved_path).to(device)
+    else:
+        model = AutoModelForSeq2SeqLM.from_pretrained(lan_model).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(lan_model)
+    
+    generated_text_set = None
+    for batch, (prem, hypo, label) in tqdm(enumerate(zip(premises, hypotheses, labels)),
+                           total=len(labels), desc='Processing batches'):
+        generated_texts = gen_contradiction_flant5(prem, hypo, gen_prompt,
+                              generation_size, model,
+                              tokenizer, label, verbose=False)
+        if generated_text_set is None:
+            generated_text_set = generated_texts
+        else:
+            generated_text_set = np.append(generated_text_set, generated_texts, axis=0)
+    
+    dataset['g_hypotheses'] = generated_text_set
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    with open(os.path.join(data_dir, 'mnli_g.pickle'), 'wb') as f:
+        pickle.dump(dataset, f)
+    return dataset
 
 
 if __name__ == '__main__':
@@ -73,3 +125,19 @@ if __name__ == '__main__':
     print('Sample premise: %s' %sampled_prems[0])
     print('Sample hypothesis: %s' %sampled_hypos[0])
     print('Generated contradictive statements:\n', generated_texts[0])
+
+
+    lan_model = 'flan-t5-xl'
+    gen_prompt = [
+        'Generate a statement that contradicts the following statement: <hypothesis>',
+        'Rephrase the following sentence while preserving its original meaning: <hypothesis>'
+    ]
+    batch_size = 16
+    data_dir = '/content/drive/MyDrive/Thesis/Implementation/data'
+    model_saved_path = '/content/drive/MyDrive/Thesis/Implementation/Model'
+    dataset = generate_raw_statements(dataset['train'], lan_model, 
+                                      gen_prompt, batch_size,
+                                      data_dir,
+                                      generation_size=10, 
+                                      num_inst_each_class=1500,
+                                      model_saved_path=model_saved_path)

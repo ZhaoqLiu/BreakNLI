@@ -76,6 +76,87 @@ def demo(dataset, nli_model, gen_model, gen_prompt, nli_prompt, sample_size, gen
     return selected_cont, break_preds, [sampled_prems, sampled_hypos, sampled_labels]
 
 
+def evaluate(dataset_path, nli_model, 
+       nli_prompt, generate_ent_for_con,
+       take_correct_nli=True,
+       model_saved_path=None, 
+       batch_size=32):
+
+    with open(dataset_path, 'rb') as f:
+        dataset = pickle.load(f)
+    
+    premises = dataset['premise']
+    hypotheses = dataset['hypothesis']
+    labels = dataset['label']
+    g_hypotheses = dataset['g_hypotheses']
+    
+    model = AutoModelForSeq2SeqLM.from_pretrained(nli_model).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(nli_model)
+    
+    if take_correct_nli:
+        # Evaluating (p, h)
+        nli_preds = nli_predict(model, tokenizer, premises, 
+                                hypotheses, nli_prompt, batch_size, 
+                                description='Evaluating NLI on (p,h)')
+        correct_pred = nli_preds == labels
+        correct_nli_idx = np.where(correct_pred)[0]
+        
+        premises = premises[correct_nli_idx]
+        hypotheses = hypotheses[correct_nli_idx]
+        labels = labels[correct_nli_idx]
+        g_hypotheses = g_hypotheses[correct_nli_idx]
+        
+        num_ent = len(np.where(labels==0)[0])
+        num_con = len(np.where(labels==2)[0])
+        print('Taking pairs that could be correctly predicted by NLI system, we obtain:')
+        print('%d Entailment, %d Contradiction pairs' %(num_ent, num_con))
+    
+    # Evaluating (h, h')
+    temp_hypos = np.array([hypo for hypo in hypotheses for _ in range(10)])
+    temp_g_hypos = g_hypotheses.flatten()
+    nli_preds = nli_predict(model, tokenizer, temp_hypos, 
+                            temp_g_hypos, nli_prompt, batch_size, 
+                            description='Evaluating NLI on (h,h\')')
+    nli_preds = nli_preds.reshape((-1, 10))
+    
+    f_idx, f_idj = [], []
+    for idx, pred in enumerate(nli_preds):
+        if generate_ent_for_con:
+            s_idx = np.where(pred==2*int(labels[idx]==0))[0]
+        else:
+            s_idx = np.where(pred==2)[0]
+        
+        if len(s_idx) < 5:
+            continue
+        else:
+            f_idj += list(s_idx[:5])
+            f_idx.append(idx)
+        
+    f_g_idx = [x for x in f_idx for _ in range(5)]
+    new_dataset = {
+        'premises': premises[f_idx],
+        'hypotheses': hypotheses[f_idx],
+        'labels': labels[f_idx],
+        'g_hypotheses': g_hypotheses[f_g_idx, f_idj].reshape(-1, 5)
+    }
+    
+    num_ent = len(np.where(new_dataset['labels']==0)[0])
+    num_con = len(np.where(new_dataset['labels']==2)[0])
+    print('Taking pairs that have more than 5 generated statements satifying requirement, we obtain:')
+    print('%d Entailment, %d Contradiction pairs' %(num_ent, num_con))
+    
+    # Evaluating (p, h')
+    temp_ps = np.array([prem for prem in new_dataset['premises'] for _ in range(5)])
+    temp_ghs = new_dataset['g_hypotheses'].flatten()
+    nli_preds = nli_predict(model, tokenizer, temp_ps, 
+                            temp_ghs, nli_prompt, batch_size, 
+                            description='Evaluating NLI on (p,h\')')
+    nli_preds = nli_preds.reshape((-1, 5))
+    
+    show_results(new_dataset['labels'], nli_preds, generate_ent_for_con)
+    return new_dataset
+
+
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Test of contradiction generation using GPT3')
@@ -105,3 +186,13 @@ if __name__ == '__main__':
     results = demo(dataset, nli_model, gen_model, gen_prompt, nli_prompt, args.size, 10)
 
     sample_results(results)
+
+    data_dir = '/content/drive/MyDrive/Thesis/Implementation/data'
+    dataset_path = os.path.join(data_dir, 'mnli_g.pickle')
+    nli_model = 'google/flan-t5-xl'
+    nli_prompt = 'Read the following and determine if the hypothesis can be inferred from the premise: Premise: <premise> Hypothesis: <hypothesis>'
+    new_dataset = evaluate(dataset_path, nli_model, 
+                           nli_prompt, generate_ent_for_con=True,
+                           take_correct_nli=True, 
+                           model_saved_path=None, 
+                           batch_size=128)
