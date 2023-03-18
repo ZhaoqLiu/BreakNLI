@@ -32,11 +32,106 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 4. We are using the pairs that could be correctly perceived by the NLI system. Should be expect the system to make 100-percent in evaluation?
 
 **Temporary results:**
-| Inequal/strictly inequal | Flan-T5-base  | Flan-T5-large | Flan-T5-xl   |
-| ------------------------ | :-----------: | :-----------: | :----------: |
-| Entailment               | 15.61%/20.34% | 13.13%/20.05% | 8.83%/16.82% |
-| Contradiction            | 6.49%/12.19%  | 4.41%/9.95%   | 3.01%/7.09%  |
-| Overall                  | 11.03%/16.24% | 8.72%/14.93%  | 5.83%/11.81% |
+
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-twlt" colspan="2">Inequal/strictly inequal</th>
+    <th class="tg-twlt">Flan-T5-base<br>(83.63%)</th>
+    <th class="tg-twlt">Flan-T5-large<br>(88.93%)</th>
+    <th class="tg-twlt">Flan-T5-xl<br>(90.91%)</th>
+    <th class="tg-1x5j">flan-t5-xxl</th>
+    <th class="tg-1x5j">bart-large-mnli<br>(90.10%)</th>
+    <th class="tg-1x5j">roberta-large-mnli<br>(90.56%)</th>
+    <th class="tg-1x5j">distilbart-mnli-12-1<br>(87.17%)</th>
+    <th class="tg-1x5j">deberta-base-mnli<br>(88.77%)</th>
+    <th class="tg-1x5j">deberta-large-mnli<br>(91.32%)</th>
+    <th class="tg-1x5j">deberta-xlarge-mnli<br>(91.44%)</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-y3we" rowspan="3">Contradictive<br>generation</td>
+    <td class="tg-m2ts">Entailment</td>
+    <td class="tg-y3we">15.91%/21.29%</td>
+    <td class="tg-y3we">11.23%/19.51%</td>
+    <td class="tg-y3we">8.20%/15.02%</td>
+    <td class="tg-nrix">　</td>
+    <td class="tg-nrix">9.91%/16.63%</td>
+    <td class="tg-nrix">8.78%/15.44%</td>
+    <td class="tg-nrix">11.05%/19.77%</td>
+    <td class="tg-nrix">10.27%/18.03%</td>
+    <td class="tg-nrix">6.70%/14.85%</td>
+    <td class="tg-nrix">7.44%/15.67%</td>
+  </tr>
+  <tr>
+    <td class="tg-m2ts">Contradiction</td>
+    <td class="tg-y3we">50.2%/73.50%</td>
+    <td class="tg-y3we">42.88%/71.53%</td>
+    <td class="tg-9wq8">46.58%/76.51%</td>
+    <td class="tg-nrix">　</td>
+    <td class="tg-nrix">47.84%/77.36%</td>
+    <td class="tg-nrix">43.98%/77.09%</td>
+    <td class="tg-nrix">51.90%/81.39%</td>
+    <td class="tg-nrix">46.30%/81.05%</td>
+    <td class="tg-nrix">44.32%/80.23%</td>
+    <td class="tg-nrix">42.22%/77.46%</td>
+  </tr>
+  <tr>
+    <td class="tg-m2ts">Overall</td>
+    <td class="tg-y3we">32.19%/46.07%</td>
+    <td class="tg-y3we">26.39%/44.92%</td>
+    <td class="tg-y3we">27.02%/45.17%</td>
+    <td class="tg-nrix">　</td>
+    <td class="tg-nrix">28.49%/46.38%</td>
+    <td class="tg-nrix">25.95%/45.52%</td>
+    <td class="tg-nrix">31.04%/49.93%</td>
+    <td class="tg-nrix">28.07%/49.16%</td>
+    <td class="tg-nrix">25.33%/47.22%</td>
+    <td class="tg-nrix">24.45%/45.89%</td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="3">Entailed<br>generation</td>
+    <td class="tg-m2ts">Entailment</td>
+    <td class="tg-9wq8">3.92%/7.90%</td>
+    <td class="tg-9wq8">1.72%/6.81%</td>
+    <td class="tg-9wq8">2.60%/7.01%</td>
+    <td class="tg-nrix">　</td>
+    <td class="tg-nrix">1.58%/6.95%</td>
+    <td class="tg-nrix">1.73%/6.86%</td>
+    <td class="tg-baqh">2.29%/9.03%</td>
+    <td class="tg-nrix">2.23%/9.13%</td>
+    <td class="tg-nrix">1.24%/7.98%</td>
+    <td class="tg-nrix">1.28%/6.10%</td>
+  </tr>
+  <tr>
+    <td class="tg-m2ts">Contradiction</td>
+    <td class="tg-9wq8">4.50%/9.84%</td>
+    <td class="tg-9wq8">3.44%/8.64%</td>
+    <td class="tg-9wq8">2.43%/7.06%</td>
+    <td class="tg-nrix">　</td>
+    <td class="tg-nrix">2.90%/7.46%</td>
+    <td class="tg-nrix">2.80%/6.67%</td>
+    <td class="tg-nrix">3.91%/9.19%</td>
+    <td class="tg-nrix">3.36%/8.58%</td>
+    <td class="tg-nrix">2.66%/6.89%</td>
+    <td class="tg-nrix">2.67%/7.13%</td>
+  </tr>
+  <tr>
+    <td class="tg-m2ts">Overall</td>
+    <td class="tg-9wq8">4.19%/8.81%</td>
+    <td class="tg-9wq8">2.53%/7.68%</td>
+    <td class="tg-y3we">2.52%/7.03%</td>
+    <td class="tg-nrix">　</td>
+    <td class="tg-nrix">2.22%/7.20%</td>
+    <td class="tg-nrix">2.25%/6.77%</td>
+    <td class="tg-nrix">3.07%/9.11%</td>
+    <td class="tg-nrix">2.78%/8.86%</td>
+    <td class="tg-nrix">1.93%/7.45%</td>
+    <td class="tg-nrix">1.94%/6.59%</td>
+  </tr>
+</tbody>
+</table>
 
 Inequal: At least 1 (among 5) $M(p, h^k)$ is given the opposite label of the label that it should have been predicted. For instance, given $M(p,h)=Contradiction$ and $M(h, h^k)=Entailment$, $M(p, h^k)=Entailment$.  
 Strictly inequal: At least 1 (among 5) $M(p, h^k)$ does not comply with the relationship indicated by the corresponding triangle. For instance, given $M(p,h)=Contradiction$ and $M(h, h^k)=Entailment$, $M(p, h^k)=Entailment\mid Neutral$.  
