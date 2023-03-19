@@ -90,26 +90,24 @@ def evaluate(dataset_path, nli_model, nli_prompt,
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Evaluation of NLI models')
-    parser.add_argument('-s', '--size', type=int, default=10,
-                        help='sample size')
     parser.add_argument('-nm', '--nlimodel', type=str, default='flan_t5_base', 
                         choices=['flan_t5_base', 'flan_t5_large', 'flan_t5_xl',
                         'flan_t5_xxl', 'bart_large_mnli', 'roberta_large_mnli',
                         'distilbart_mnli_12-1', 'deberta_base_mnli', 
                         'deberta_large_mnli', 'deberta_xlarge_mnli'],
                         help='model used to perform NLI')
+    parse.add_argument('-p', '--positive', type=bool, default=True,
+                        help='true if evaluate entailed generation')
     args = parser.parse_args()
 
     nli_model = args.nlimodel.replace('_', '-')
-
-    nli_prompt = 'Read the following and determine if the hypothesis can be inferred from the premise: Premise: <premise> Hypothesis: <hypothesis>'
 
     data_dir = './data'
     # data_dir = '/content/drive/MyDrive/Thesis/Implementation/data'
     dataset_path = os.path.join(data_dir, 'mnli_g.pickle')
     nli_prompt = 'Read the following and determine if the hypothesis can be inferred from the premise: Premise: <premise> Hypothesis: <hypothesis>'
     new_dataset = evaluate(dataset_path, nli_model, 
-                          nli_prompt, evaluate_positive_statement=True,
+                          nli_prompt, evaluate_positive_statement=args.positive,
                           take_correct_nli=True, 
                           model_saved_path=None, 
                           batch_size=64)
