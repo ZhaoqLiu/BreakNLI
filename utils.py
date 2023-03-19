@@ -96,13 +96,6 @@ def fetch_and_organize_data(data_name='mnli', save_to_cur_dic=True):
         
     return returned_dict
 
-def text_label_to_id(text_labels):
-    map_dict = {
-      'yes': 0,
-      'no': 2
-    }
-    return np.array([map_dict.get(text.lower(), 1) for text in text_labels])
-
 
 def batch_it(data, batch_size, keep_tail=False):
     batched_data = []
@@ -117,35 +110,6 @@ def batch_it(data, batch_size, keep_tail=False):
         batched_data = np.array(batched_data)
         
     return batched_data
-
-
-def nli_predict(model, tokenizer, premises, 
-                hypotheses, prompt, batch_size, 
-                description=None):
-    
-    if prompt is not None:
-        texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo)
-                      for prem, hypo in zip(premises, hypotheses)]
-    batched_texts = batch_it(texts, batch_size=batch_size, keep_tail=True)
-    
-    predictions = None
-    for batch in tqdm(batched_texts, desc=description):
-        with torch.no_grad():
-            inputs = tokenizer(batch, return_tensors='pt', padding='longest').to(device)
-            outputs = model.generate(**inputs)
-        pred = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-        pred_ids = text_label_to_id(pred)
-        
-        if predictions is None:
-            predictions = pred_ids
-        else:
-            predictions = np.append(predictions, pred_ids)
-        
-        del inputs, outputs
-        torch.cuda.empty_cache()
-    
-    return predictions
 
 
 def sample_result(results, idx=None):
