@@ -14,12 +14,12 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 * google/flan-t5-large (tested)
 * google/flan-t5-xl (tested)
 * google/flan-t5-xxl
-* facebook/bart-large-mnli
-* roberta-large-mnli
-* valhalla/distilbart-mnli-12-1
-* microsoft/deberta-base-mnli
-* microsoft/deberta-large-mnli
-* microsoft/deberta-xlarge-mnli
+* facebook/bart-large-mnli (tested)
+* roberta-large-mnli (tested)
+* valhalla/distilbart-mnli-12-1 (tested)
+* microsoft/deberta-base-mnli (tested)
+* microsoft/deberta-large-mnli (tested)
+* microsoft/deberta-xlarge-mnli (tested)
 
 **Problems to be looked into:**  
 1. For pair $(p_i,h_i)$ whose $M(p_i, h_i)=Contradiction$ (Triangle 2), the generation of contradictive statements is hard for the current way. Because two sentences could contradict each other in many aspects, inducing legit inequality of the triangles. The following is a typical example where $M(p, h) = M(h, h^k)=M(p,h^k)=Contradiction$.
