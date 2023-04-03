@@ -32,103 +32,196 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 4. We are using the pairs that could be correctly perceived by the NLI system. Should be expect the system to make 100-percent in evaluation?
 
 **Temporary results:**
-
 <table class="tg">
 <thead>
   <tr>
-    <th class="tg-twlt" colspan="2">Inequal/strictly inequal</th>
+    <th class="tg-twlt">Dataset</th>
+    <th class="tg-twlt" colspan="2">Inequality/relaxed inequality</th>
     <th class="tg-twlt">Flan-T5-base<br>(83.63%)</th>
     <th class="tg-twlt">Flan-T5-large<br>(88.93%)</th>
     <th class="tg-twlt">Flan-T5-xl<br>(90.91%)</th>
-    <th class="tg-1x5j">flan-t5-xxl</th>
-    <th class="tg-1x5j">bart-large-mnli<br>(90.10%)</th>
-    <th class="tg-1x5j">roberta-large-mnli<br>(90.56%)</th>
-    <th class="tg-1x5j">distilbart-mnli-12-1<br>(87.17%)</th>
-    <th class="tg-1x5j">deberta-base-mnli<br>(88.77%)</th>
-    <th class="tg-1x5j">deberta-large-mnli<br>(91.32%)</th>
-    <th class="tg-1x5j">deberta-xlarge-mnli<br>(91.44%)</th>
+    <th class="tg-jn0g">bart-large-mnli<br>(90.10%)</th>
+    <th class="tg-jn0g">roberta-large-mnli<br>(90.56%)</th>
+    <th class="tg-jn0g">distilbart-mnli-12-1<br>(87.17%)</th>
+    <th class="tg-jn0g">deberta-base-mnli<br>(88.77%)</th>
+    <th class="tg-jn0g">deberta-large-mnli<br>(91.32%)</th>
+    <th class="tg-jn0g">deberta-xlarge-mnli<br>(91.44%)</th>
   </tr>
 </thead>
 <tbody>
   <tr>
+    <td class="tg-y3we" rowspan="7">MNLI</td>
     <td class="tg-y3we" rowspan="3">Contradictive<br>generation</td>
     <td class="tg-m2ts">Entailment</td>
-    <td class="tg-y3we">15.91%/21.29%</td>
-    <td class="tg-y3we">11.23%/19.51%</td>
-    <td class="tg-y3we">8.20%/15.02%</td>
-    <td class="tg-nrix">　</td>
-    <td class="tg-nrix">9.91%/16.63%</td>
-    <td class="tg-nrix">8.78%/15.44%</td>
-    <td class="tg-nrix">11.05%/19.77%</td>
-    <td class="tg-nrix">10.27%/18.03%</td>
-    <td class="tg-nrix">6.70%/14.85%</td>
-    <td class="tg-nrix">7.44%/15.67%</td>
+    <td class="tg-y3we">18.27%/25.7%</td>
+    <td class="tg-y3we">13.32%/24.15%</td>
+    <td class="tg-y3we">10.21%/20.45%</td>
+    <td class="tg-9wq8">11.37%/20.31%</td>
+    <td class="tg-9wq8">9.94%/18.74%</td>
+    <td class="tg-9wq8">11.73%/23.38%</td>
+    <td class="tg-9wq8">11.23%/22.0%</td>
+    <td class="tg-9wq8">7.58%/18.32%</td>
+    <td class="tg-9wq8">9.34%/19.91%</td>
   </tr>
   <tr>
     <td class="tg-m2ts">Contradiction</td>
-    <td class="tg-y3we">50.2%/73.50%</td>
-    <td class="tg-y3we">42.88%/71.53%</td>
-    <td class="tg-9wq8">46.58%/76.51%</td>
-    <td class="tg-nrix">　</td>
-    <td class="tg-nrix">47.84%/77.36%</td>
-    <td class="tg-nrix">43.98%/77.09%</td>
-    <td class="tg-nrix">51.90%/81.39%</td>
-    <td class="tg-nrix">46.30%/81.05%</td>
-    <td class="tg-nrix">44.32%/80.23%</td>
-    <td class="tg-nrix">42.22%/77.46%</td>
+    <td class="tg-y3we">54.5%/78.23%</td>
+    <td class="tg-y3we">47.88%/78.76%</td>
+    <td class="tg-9wq8">52.14%/81.83%</td>
+    <td class="tg-9wq8">51.91%/82.67%</td>
+    <td class="tg-9wq8">48.59%/81.31%</td>
+    <td class="tg-9wq8">56.38%/86.29%</td>
+    <td class="tg-9wq8">49.7%/84.53%</td>
+    <td class="tg-9wq8">47.66%/84.04%</td>
+    <td class="tg-9wq8">45.7%/80.96%</td>
   </tr>
   <tr>
     <td class="tg-m2ts">Overall</td>
-    <td class="tg-y3we">32.19%/46.07%</td>
-    <td class="tg-y3we">26.39%/44.92%</td>
-    <td class="tg-y3we">27.02%/45.17%</td>
-    <td class="tg-nrix">　</td>
-    <td class="tg-nrix">28.49%/46.38%</td>
-    <td class="tg-nrix">25.95%/45.52%</td>
-    <td class="tg-nrix">31.04%/49.93%</td>
-    <td class="tg-nrix">28.07%/49.16%</td>
-    <td class="tg-nrix">25.33%/47.22%</td>
-    <td class="tg-nrix">24.45%/45.89%</td>
+    <td class="tg-y3we">35.65%/50.9%</td>
+    <td class="tg-y3we">30.05%/50.58%</td>
+    <td class="tg-s55b">30.92%/50.77%</td>
+    <td class="tg-9wq8">31.54%/51.33%</td>
+    <td class="tg-9wq8">29.01%/49.61%</td>
+    <td class="tg-9wq8">33.83%/54.52%</td>
+    <td class="tg-9wq8">30.44%/53.23%</td>
+    <td class="tg-9wq8">27.8%/51.46%</td>
+    <td class="tg-9wq8">27.27%/50.02%</td>
   </tr>
   <tr>
-    <td class="tg-9wq8" rowspan="3">Entailed<br>generation</td>
+    <td class="tg-y3we" rowspan="4">Entailed<br>generation</td>
     <td class="tg-m2ts">Entailment</td>
-    <td class="tg-9wq8">3.92%/7.90%</td>
-    <td class="tg-9wq8">1.72%/6.81%</td>
-    <td class="tg-9wq8">2.60%/7.01%</td>
-    <td class="tg-nrix">　</td>
-    <td class="tg-nrix">1.58%/6.95%</td>
-    <td class="tg-nrix">1.73%/6.86%</td>
-    <td class="tg-baqh">2.29%/9.03%</td>
-    <td class="tg-nrix">2.23%/9.13%</td>
-    <td class="tg-nrix">1.24%/7.98%</td>
-    <td class="tg-nrix">1.28%/6.10%</td>
+    <td class="tg-9wq8">4.71%/10.39%</td>
+    <td class="tg-9wq8">2.61%/9.4%</td>
+    <td class="tg-9wq8">3.21%/10.41%</td>
+    <td class="tg-9wq8">2.21%/10.71%</td>
+    <td class="tg-9wq8">2.23%/10.31%</td>
+    <td class="tg-9wq8">2.95%/13.49%</td>
+    <td class="tg-9wq8">2.54%/12.56%</td>
+    <td class="tg-9wq8">1.52%/10.61%</td>
+    <td class="tg-9wq8">1.79%/8.85%</td>
+  </tr>
+  <tr>
+    <td class="tg-m2ts">Neutrality</td>
+    <td class="tg-9wq8">18.83%/18.83%</td>
+    <td class="tg-9wq8">16.52%/16.52%</td>
+    <td class="tg-9wq8">14.64%/14.64%</td>
+    <td class="tg-9wq8">14.77%/14.77%</td>
+    <td class="tg-9wq8">14.23%/14.23%</td>
+    <td class="tg-9wq8">17.95%/17.95%</td>
+    <td class="tg-9wq8">14.03%/14.03%</td>
+    <td class="tg-9wq8">13.32%/13.32%</td>
+    <td class="tg-9wq8">13.41%/13.41%</td>
   </tr>
   <tr>
     <td class="tg-m2ts">Contradiction</td>
-    <td class="tg-9wq8">4.50%/9.84%</td>
-    <td class="tg-9wq8">3.44%/8.64%</td>
-    <td class="tg-9wq8">2.43%/7.06%</td>
-    <td class="tg-nrix">　</td>
-    <td class="tg-nrix">2.90%/7.46%</td>
-    <td class="tg-nrix">2.80%/6.67%</td>
-    <td class="tg-nrix">3.91%/9.19%</td>
-    <td class="tg-nrix">3.36%/8.58%</td>
-    <td class="tg-nrix">2.66%/6.89%</td>
-    <td class="tg-nrix">2.67%/7.13%</td>
+    <td class="tg-9wq8">5.95%/12.79%</td>
+    <td class="tg-y3we">4.31%/10.89%</td>
+    <td class="tg-y3we">3.17%/9.07%</td>
+    <td class="tg-9wq8">3.77%/10.01%</td>
+    <td class="tg-9wq8">3.67%/9.19%</td>
+    <td class="tg-9wq8">4.97%/12.61%</td>
+    <td class="tg-9wq8">4.3%/10.84%</td>
+    <td class="tg-9wq8">3.65%/9.38%</td>
+    <td class="tg-9wq8">4.03%/10.23%</td>
   </tr>
   <tr>
-    <td class="tg-m2ts">Overall</td>
-    <td class="tg-9wq8">4.19%/8.81%</td>
-    <td class="tg-9wq8">2.53%/7.68%</td>
-    <td class="tg-y3we">2.52%/7.03%</td>
-    <td class="tg-nrix">　</td>
-    <td class="tg-nrix">2.22%/7.20%</td>
-    <td class="tg-nrix">2.25%/6.77%</td>
-    <td class="tg-nrix">3.07%/9.11%</td>
-    <td class="tg-nrix">2.78%/8.86%</td>
-    <td class="tg-nrix">1.93%/7.45%</td>
-    <td class="tg-nrix">1.94%/6.59%</td>
+    <td class="tg-cwad">Overall</td>
+    <td class="tg-nrix">9.18%/13.62%</td>
+    <td class="tg-nrix">7.32%/12.02%</td>
+    <td class="tg-nrix">6.64%/11.23%</td>
+    <td class="tg-nrix">6.55%/11.71%</td>
+    <td class="tg-nrix">6.36%/11.13%</td>
+    <td class="tg-nrix">8.11%/14.53%</td>
+    <td class="tg-nrix">6.73%/12.45%</td>
+    <td class="tg-nrix">5.93%/11.05%</td>
+    <td class="tg-nrix">6.11%/10.71%</td>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="7">SNLI</td>
+    <td class="tg-nrix" rowspan="3">Contradictive<br>generation</td>
+    <td class="tg-cwad">Entailment</td>
+    <td class="tg-nrix">10.43%/15.69%</td>
+    <td class="tg-nrix">8.34%/13.58%</td>
+    <td class="tg-nrix">5.77%/9.48%</td>
+    <td class="tg-nrix">6.4%/12.23%</td>
+    <td class="tg-nrix">8.27%/14.94%</td>
+    <td class="tg-nrix">8.73%/16.44%</td>
+    <td class="tg-nrix">7.0%/12.54%</td>
+    <td class="tg-nrix">4.53%/10.55%</td>
+    <td class="tg-nrix">4.84%/10.39%</td>
+  </tr>
+  <tr>
+    <td class="tg-cwad">Contradiction</td>
+    <td class="tg-nrix">94.66%/97.88%</td>
+    <td class="tg-nrix">91.79%/97.69%</td>
+    <td class="tg-nrix">93.75%/97.85%</td>
+    <td class="tg-nrix">93.93%/98.79%</td>
+    <td class="tg-nrix">93.02%/98.66%</td>
+    <td class="tg-nrix">94.78%/99.08%</td>
+    <td class="tg-nrix">94.16%/99.24%</td>
+    <td class="tg-nrix">93.63%/98.88%</td>
+    <td class="tg-nrix">93.27%/98.81%</td>
+  </tr>
+  <tr>
+    <td class="tg-cwad">Overall</td>
+    <td class="tg-nrix">51.41%/55.68%</td>
+    <td class="tg-nrix">49.12%/54.68%</td>
+    <td class="tg-nrix">49.77%/53.68%</td>
+    <td class="tg-nrix">49.65%/55.0%</td>
+    <td class="tg-nrix">48.82%/54.99%</td>
+    <td class="tg-nrix">50.78%/56.83%</td>
+    <td class="tg-nrix">50.27%/55.58%</td>
+    <td class="tg-nrix">48.9%/54.53%</td>
+    <td class="tg-nrix">48.69%/54.24%</td>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="4">Entailed<br>generation</td>
+    <td class="tg-cwad">Entailment</td>
+    <td class="tg-nrix">6.46%/10.61%</td>
+    <td class="tg-nrix">4.8%/9.07%</td>
+    <td class="tg-nrix">7.52%/11.68%</td>
+    <td class="tg-nrix">8.75%/15.63%</td>
+    <td class="tg-nrix">6.01%/12.41%</td>
+    <td class="tg-nrix">15.26%/22.96%</td>
+    <td class="tg-nrix">7.23%/16.45%</td>
+    <td class="tg-nrix">6.87%/12.71%</td>
+    <td class="tg-nrix">8.98%/15.39%</td>
+  </tr>
+  <tr>
+    <td class="tg-cwad">Neutrality</td>
+    <td class="tg-nrix">23.26%/23.26%</td>
+    <td class="tg-nrix">18.96%/18.96%</td>
+    <td class="tg-nrix">20.44%/20.44%</td>
+    <td class="tg-nrix">22.07%/22.07%</td>
+    <td class="tg-nrix">20.57%/20.57%</td>
+    <td class="tg-nrix">29.54%/29.54%</td>
+    <td class="tg-nrix">23.02%/23.02%</td>
+    <td class="tg-nrix">20.45%/20.45%</td>
+    <td class="tg-nrix">21.15%/21.15%</td>
+  </tr>
+  <tr>
+    <td class="tg-cwad">Contradiction</td>
+    <td class="tg-nrix">4.79%/11.02%</td>
+    <td class="tg-nrix">4.4%/10.71%</td>
+    <td class="tg-nrix">3.5%/7.22%</td>
+    <td class="tg-nrix">4.41%/10.5%</td>
+    <td class="tg-nrix">4.7%/14.09%</td>
+    <td class="tg-nrix">4.96%/12.79%</td>
+    <td class="tg-nrix">4.98%/13.82%</td>
+    <td class="tg-nrix">3.97%/10.36%</td>
+    <td class="tg-nrix">3.65%/9.76%</td>
+  </tr>
+  <tr>
+    <td class="tg-cwad">Overall</td>
+    <td class="tg-nrix">11.37%/14.88%</td>
+    <td class="tg-nrix">9.38%/12.93%</td>
+    <td class="tg-nrix">10.27%/12.92%</td>
+    <td class="tg-nrix">11.57%/15.93%</td>
+    <td class="tg-nrix">10.41%/15.69%</td>
+    <td class="tg-nrix">15.93%/21.39%</td>
+    <td class="tg-nrix">11.67%/17.71%</td>
+    <td class="tg-nrix">10.38%/14.47%</td>
+    <td class="tg-nrix">11.03%/15.27%</td>
   </tr>
 </tbody>
 </table>
