@@ -6,6 +6,20 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 3. Evaluate whether the following 3 triangles hold or not by $M(p_i, h_i^k)$.
 ![Image text](imgs/triangles.png)
 
+```mermaid
+flowchart LR
+    A["(p,h)"] -->|Generate H'| B[H' of size 20]
+    B --> C{"len(set(H'))<10"}
+    C -->|Yes| D[Drop]
+    C -->|No| E[H' of size 10]
+    E -->F{"M(p,h)=y?"}
+    F -->|No| G[Drop]
+    F -->|Yes| H{"More than 5 h' that\nM(h,h')=target?"}
+    H -->|No| I[Drop]
+    H -->|Yes| J[H' of size 5]
+    J -->|"Evaluate (p,h')"| K[NLI system broken or not]
+```
+
 **Our hypothesis:**  
 &ensp;&ensp; If the system is not able to change the label of an example accordingly, then the predictions are based on shallow patterns as opposed to a deep language understanding.
 
