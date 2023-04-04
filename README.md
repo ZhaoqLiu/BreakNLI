@@ -9,7 +9,7 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 ```mermaid
 flowchart LR
     A["(p,h)"] -->|Generate H'| B[H' of size 20]
-    B --> C{"len(set(H'))<10"}
+    B --> C{"len(set(H'))<10?"}
     C -->|Yes| D[Drop]
     C -->|No| E[H' of size 10]
     E -->F{"M(p,h)=y?"}
