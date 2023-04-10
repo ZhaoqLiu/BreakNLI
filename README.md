@@ -244,6 +244,60 @@ Inequal: At least 1 (among 5) $M(p, h^k)$ is given the opposite label of the lab
 Strictly inequal: At least 1 (among 5) $M(p, h^k)$ does not comply with the relationship indicated by the corresponding triangle. For instance, given $M(p,h)=Contradiction$ and $M(h, h^k)=Entailment$, $M(p, h^k)=Entailment\mid Neutral$.  
 Entailment: Results for premise-hypothesis pairs whose $M(p, h)=Entailment$.  
 
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-bobw">anli</th>
+    <th class="tg-amwm">flan-t5-base</th>
+    <th class="tg-amwm">flan-t5-large</th>
+    <th class="tg-amwm">flan-t5-xl</th>
+    <th class="tg-amwm">bart-large-mnli</th>
+    <th class="tg-amwm">roberta-large-mnli</th>
+    <th class="tg-amwm">distilbart-mnli-12-1</th>
+    <th class="tg-amwm">deberta-base-mnli</th>
+    <th class="tg-amwm">deberta-large-mnli</th>
+    <th class="tg-amwm">deberta-xlarge-mnli</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-amwm">r1</td>
+    <td class="tg-8d8j">0.508</td>
+    <td class="tg-8d8j">0.675</td>
+    <td class="tg-8d8j">0.77</td>
+    <td class="tg-8d8j">0.462</td>
+    <td class="tg-8d8j">0.464</td>
+    <td class="tg-8d8j">0.414</td>
+    <td class="tg-8d8j">0.351</td>
+    <td class="tg-8d8j">0.497</td>
+    <td class="tg-8d8j">0.53</td>
+  </tr>
+  <tr>
+    <td class="tg-amwm">r2</td>
+    <td class="tg-8d8j">0.379</td>
+    <td class="tg-8d8j">0.504</td>
+    <td class="tg-8d8j">0.605</td>
+    <td class="tg-8d8j">0.316</td>
+    <td class="tg-8d8j">0.27</td>
+    <td class="tg-8d8j">0.328</td>
+    <td class="tg-8d8j">0.298</td>
+    <td class="tg-8d8j">0.327</td>
+    <td class="tg-8d8j">0.354</td>
+  </tr>
+  <tr>
+    <td class="tg-amwm">r3</td>
+    <td class="tg-8d8j">0.415</td>
+    <td class="tg-8d8j">0.489166667</td>
+    <td class="tg-8d8j">0.573333333</td>
+    <td class="tg-8d8j">0.330833333</td>
+    <td class="tg-8d8j">0.2675</td>
+    <td class="tg-8d8j">0.3275</td>
+    <td class="tg-8d8j">0.305</td>
+    <td class="tg-8d8j">0.359166667</td>
+    <td class="tg-8d8j">0.3875</td>
+  </tr>
+</tbody>
+</table>
 ## Requirements
 The environment should meet the following requirements:
   ```markdown
