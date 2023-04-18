@@ -4,7 +4,7 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 2. Pick out pairs that $M(p, h)=\hat y=y$.
 2. Using `Flan-T5-xl` (referred to $G$), generate 5 statements that contradicts the hypothesis, namely $G(h_i)=\lbrace h_i^1, ...,h_i^k,..., h_i^5 \rbrace$ and $M(h_i,h_i^k)=Contradiction$.
 3. Evaluate whether the following 3 triangles hold or not by $M(p_i, h_i^k)$.
-![Image text](imgs/triangles.png)
+![Image text](imgs/triangles.jpg)
 
 ```mermaid
 flowchart LR
