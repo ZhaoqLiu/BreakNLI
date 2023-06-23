@@ -4,7 +4,7 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 2. Pick out pairs that $M(p, h)=\hat y=y$.
 2. Using `Flan-T5-xl` (referred to $G$), generate 5 statements that are symmetrically equivalent to the original hypothesis, namely $G(h_i)=\lbrace h_i^1, ...,h_i^k,..., h_i^5 \rbrace$ and $M(h_i,h_i^k)=M(h_i^k,h_i)=Entailment$.
 3. Evaluate whether the following triangle is held by $M(p_i, h_i^k)$.
-![Image text](imgs/triangle.png) 
+![Image text](imgs/triangle.png)
 
 ```mermaid
 flowchart LR
