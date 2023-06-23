@@ -2,8 +2,8 @@
 This project concerns the evaluation of NLI systems. The setting could be formulated as follows: 
 1. Given an NLI dataset $D= \lbrace(x_1, y_1),...,(x_n, y_n) \rbrace$, where we have the premise-hypothesis pair $x_i=\lbrace p_i, h_i\rbrace$ and the label $y_i \in \lbrace Entailment, Contradiction, Neutral \rbrace$, and an NLI model $M$, where $M(p_i, h_i)=\hat{y}_i$ w.r.t. true label $y_i$.
 2. Pick out pairs that $M(p, h)=\hat y=y$.
-2. Using `Flan-T5-xl` (referred to $G$), generate 5 statements that contradicts the hypothesis, namely $G(h_i)=\lbrace h_i^1, ...,h_i^k,..., h_i^5 \rbrace$ and $M(h_i,h_i^k)=Contradiction$.
-3. Evaluate whether the following 3 triangles hold or not by $M(p_i, h_i^k)$.
+2. Using `Flan-T5-xl` (referred to $G$), generate 5 statements that are symmetrically equivalent to the original hypothesis, namely $G(h_i)=\lbrace h_i^1, ...,h_i^k,..., h_i^5 \rbrace$ and $M(h_i,h_i^k)=M(h_i^k,h_i)=Entailment$.
+3. Evaluate whether the following triangle are held by $M(p_i, h_i^k)$.
 ![Image text](imgs/triangles.png)
 
 ```mermaid
@@ -21,21 +21,17 @@ flowchart LR
 ```
 
 **Our hypothesis:**  
-&ensp;&ensp; If the system is not able to change the label of an example accordingly, then the predictions are based on shallow patterns as opposed to a deep language understanding.
+&ensp;&ensp; If the system cannot remain the label unchanged, then the predictions are based on shallow patterns as opposed to a deep language understanding.
 
 **NLI models:**
-* google/flan-t5-base (tested)
-* google/flan-t5-large (tested)
-* google/flan-t5-xl (tested)
-* google/flan-t5-xxl
-* facebook/bart-large-mnli (tested)
-* roberta-large-mnli (tested)
-* valhalla/distilbart-mnli-12-1 (tested)
-* microsoft/deberta-base-mnli (tested)
-* microsoft/deberta-large-mnli (tested)
-* microsoft/deberta-xlarge-mnli (tested)
+* facebook/bart-large-mnli
+* roberta-large-mnli
+* valhalla/distilbart-mnli-12-1
+* microsoft/deberta-base-mnli
+* microsoft/deberta-large-mnli
+* microsoft/deberta-xlarge-mnli
 
-**Problems to be looked into:**  
+<!--**Problems to be looked into:**  
 1. For pair $(p_i,h_i)$ whose $M(p_i, h_i)=Contradiction$ (Triangle 2), the generation of contradictive statements is hard for the current way. Because two sentences could contradict each other in many aspects, inducing legit inequality of the triangles. The following is a typical example where $M(p, h) = M(h, h^k)=M(p,h^k)=Contradiction$.
     > premise: The house is surprisingly small and simple, with one bedroom, a tiny kitchen, and a couple of social rooms.  
     > hypothesis: The house is very large and boasts over ten bedrooms, a huge kitchen, and a full sized olympic pool.  
@@ -298,16 +294,19 @@ Entailment: Results for premise-hypothesis pairs whose $M(p, h)=Entailment$.
   </tr>
 </tbody>
 </table>
-
+-->
 ## Requirements
 The environment should meet the following requirements:
   ```markdown
-  datasets==2.2.2
-  numpy==1.23.4
-  openai==0.26.5
-  scikit_learn==1.2.1
-  torch==1.11.0+cu113
-  transformers==4.10.3
+  datasets==2.11.0
+  numpy==1.23.5
+  openai==0.27.4
+  pandas==2.0.0
+  scikit_learn==1.2.2
+  scipy==1.10.1
+  torch==2.0.0
+  tqdm==4.65.0
+  transformers==4.28.1
   ```
   or install the required package by
   ```sh
@@ -328,16 +327,17 @@ Run `get_dataset.py` to download the NLI dataset and save to the current directo
   ```
   
 ### gen_statements_flant5.py
-Run `gen_contrad_flant5.py` to generate statements entailed and contradictive to hypotheses using Flan-T5 in dataset specified by parameter `-n` (defaults to `mnli`) with the size specified by `-s` (defaults to `10`). Use parameter `-gm` to select the generative model of Flan-T5 (defaults to `flan_t5_base`). Add parameter `-demo` to run generation demo.
+Run `gen_contrad_flant5.py` to generate statements entailed and contradictive to hypotheses using Flan-T5 in dataset specified by parameter `-n` (defaults to `mnli`) with the size specified by `-s` (defaults to `10`). Use parameter `-gm` to select the generative model of Flan-T5 (defaults to `flan_t5_base`). Add parameter `-demo` to run the generation demo.
   ```sh
   python gen_contrad_flant5.py -n mnli -s 10 -gm flan_t5_base
   ```
 
 ### evaluate_nli.py
-Run `evaluate_nli.py` to evaluate the accuracy of NLI systems. There are several optional parameters that control the experiment: `-n` specifies the used dataset (defaults to `mnli`), `-nm` specifies the tested NLI model (defaults to `flan_t5_base`). For example:
+Run `evaluate_nli.py` to evaluate the accuracy of NLI systems. There are several optional parameters that control the experiment: `-n` specifies the used dataset (defaults to `mnli`), `-nm` specifies the tested NLI model (defaults to `bart_large_mnli`). For example:
   ```sh
-  python evaluate_nli.py -n mnli -m flan_t5_base
+  python evaluate_nli.py -n mnli -m bart_large_mnli
   ```
+<!--
 The following is the result of different NLI system (variants of Flan-T5) using different prompts. The winning prompt is 
   ```markdown
   Read the following and determine if the hypothesis can be inferred from the premise: Premise: <premise> Hypothesis: <hypothesis>
@@ -347,14 +347,20 @@ The following is the result of different NLI system (variants of Flan-T5) using 
 | prompt_1 | 0.7954 | 0.8527 | 0.8911 |
 | prompt_2 | 0.8261 | 0.8751 | 0.8987 |
 | prompt_3 | 0.8338 | 0.8884 | 0.9070 |
-
+-->
   
 ### evaluation.py
-Run `evaluation.py` to run the experiment of breaking NLI system. Use `-nm` to select the model performing NLI. Use `-p` to choose to evaluate entailted generation or contradictive. Note that the dataset with generated statements should be prepared by running `gen_statements_flant5.py` before evaluation.
+Run `evaluation.py` to run the test for a certain model. Use `-nm` to select the model performing NLI. Note that the dataset with generated statements should be prepared by running `gen_statements_flant5.py` before evaluation.
   ```sh
-  python evaluation.py -nm flan_t5_base -p True
+  python evaluation.py -nm bart_large_mnli
   ```
 
+### main.py
+Run 'main.py' to run the demo for all the tested models on MNLI. Note that the dataset with generated statements should be prepared by running `gen_statements_flant5.py` before evaluation.
+```sh
+  python main.py
+  ```
+<!--
 ## Examples
 
 ### Example 1 - Contradiction could happen at different aspects of the sentence
@@ -462,3 +468,4 @@ Selected contradictions:
 'When they are in the water they look more dangerous.']
  
 Generated labels: [0 ... 0]
+-->
