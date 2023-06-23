@@ -50,16 +50,16 @@ def fetch_and_organize_data(data_name='mnli', save_to_cur_dic=True):
     if '_' in data_name:
         suffix = data_name[-3:]
         data_name = data_name[:-3]
-
+    
     print('Fetching dataset of {}'.format(data_name))
     dataset = fetch_data(data_name, save_to_cur_dic)
     print('Data fetched!')
-
+    
     key1s = ['train', 'test', 'validation']
     key2_p = 'premise' if data_name in ['snli', 'anli'] else 'text1'
     key2_h = 'hypothesis' if data_name in ['snli', 'anli'] else 'text2'
     key2_l = 'label'
-
+    
     returned_dict = dict()
     if data_name == 'anli':
         for key1 in key1s:
@@ -78,7 +78,7 @@ def fetch_and_organize_data(data_name='mnli', save_to_cur_dic=True):
                 'hypothesis': standarize_text(hypotheses),
                 'label': np.array(labels)
             }
-
+            
     else:
         for key1 in key1s:
             data = dataset[key1]
@@ -90,16 +90,16 @@ def fetch_and_organize_data(data_name='mnli', save_to_cur_dic=True):
                 'hypothesis': standarize_text(hypotheses),
                 'label': np.array(labels)
             }
-
+            
     print('Obtained full data of {}, including:\n\
            {} instances in training set\n\
            {} instances in test set\n\
            {} instances in validation set\n'.format(
-        data_name, len(returned_dict['train']['premise']),
-        len(returned_dict['test']['premise']),
-        len(returned_dict['validation']['premise']))
-    )
-
+                data_name, len(returned_dict['train']['premise']),
+                len(returned_dict['test']['premise']),
+                len(returned_dict['validation']['premise']))
+         )
+        
     return returned_dict
 
 
@@ -139,42 +139,43 @@ def evaluate_results(label, preds, positive_statement):
             if not np.all(p == label):
                 r_ine += 1
         return r_ine, r_ine
-
+    
     if positive_statement:
         label = 2 * int(not bool(label))
-
+        
     for p in preds:
         if label in p:
             ine += 1
         if label in p or 1 in p:
             r_ine += 1
-
+            
     return ine, r_ine
 
 
 def show_results(labels, preds, positive_statement):
+
     perc_rec = []
     total_ine, total_r_ine = 0, 0
     label_to_text = {0: 'Entailment', 1: 'Neutrality', 2: 'Contradiction'}
     for l in [0, 1, 2]:
-        corres_idx = np.where(labels == l)[0]
+        corres_idx = np.where(labels==l)[0]
         if len(corres_idx) == 0:
             continue
         ine, r_ine = evaluate_results(l, preds[corres_idx], positive_statement)
-        perc_ine, perc_r_ine = np.round(ine / len(corres_idx) * 100, 2), np.round(r_ine / len(corres_idx) * 100, 2)
+        perc_ine, perc_r_ine = np.round(ine/len(corres_idx)*100, 2), np.round(r_ine/len(corres_idx)*100, 2)
         print('Class of %s' % label_to_text[l])
-        print('%.2f%% inequal triangle; %.2f%% relaxed inequal triangle.' % (
-            perc_ine, perc_r_ine))
+        print('%.2f%% inequal triangle; %.2f%% relaxed inequal triangle.' %(
+          perc_ine, perc_r_ine))
         total_ine += ine
         total_r_ine += r_ine
-        perc_rec.append(str(perc_ine) + '%/' + str(perc_r_ine) + '%')
-
+        perc_rec.append(str(perc_ine)+'%/'+ str(perc_r_ine)+'%')
+      
     num_label = len(labels)
-    perc_ine, perc_r_ine = np.round(total_ine / num_label * 100, 2), np.round(total_r_ine / num_label * 100, 2)
+    perc_ine, perc_r_ine = np.round(total_ine/num_label*100, 2), np.round(total_r_ine/num_label*100, 2)
     print('Overall:')
-    print('%.2f%% inequal triangle; %.2f%% relaxed inequal triangle.' % (
+    print('%.2f%% inequal triangle; %.2f%% relaxed inequal triangle.' %(
         perc_ine, perc_r_ine))
-    perc_rec.append(str(perc_ine) + '%/' + str(perc_r_ine) + '%')
+    perc_rec.append(str(perc_ine)+'%/'+ str(perc_r_ine)+'%')
 
     return perc_rec
 
@@ -182,27 +183,33 @@ def show_results(labels, preds, positive_statement):
 def ks_divergence(v1, v2):
     return np.max(np.abs(v1 - v2))
 
-
 def calculate_distance(mat1, mat2, metric):
     if metric == 'cosine_distance':
         func = scipy.spatial.distance.cosine
     elif metric == 'ks_divergence':
         func = ks_divergence
+    elif metric == 'js_divergence':
+        dist = np.array([scipy.spatial.distance.jensenshannon(
+            v1, v2, base=2) for v1, v2 in zip(mat1, mat2)])
+        return np.array([d if not np.isnan(d) else 0 for d in dist])
     else:
-        return np.array([scipy.stats.entropy(v1, v2, base=2) for v1, v2 in zip(mat1, mat2)])
+      return np.array([scipy.stats.entropy(v1, v2, base=2) for v1, v2 in zip(mat1, mat2)])
     return np.array([func(v1, v2) for v1, v2 in zip(mat1, mat2)])
 
-
-def measure(dataset, metric):
+def measure(dataset, metric, sorted):
     if metric == 'cosine_distance':
-        mat1 = dataset['h_embeddings']
-        mat2 = dataset['ha_embeddings']
+      mat1 = dataset['h_embeddings']
+      mat2 = dataset['ha_embeddings']
     else:
-        mat1 = scipy.special.softmax(dataset['h_logits'], axis=-1)
-        mat2 = scipy.special.softmax(dataset['ha_logits'], axis=-1)
+      mat1 = scipy.special.softmax(dataset['h_logits'], axis=-1)
+      mat2 = scipy.special.softmax(dataset['ha_logits'], axis=-1)
+      if sorted:
+        print(sorted)
+        mat1.sort()
+        mat2.sort()
 
-        if metric == 'variance':
-            return (np.round(np.mean(mat1.std(axis=-1)), 4), mat2.std(axis=-1))
+      if metric == 'variance':
+          return (np.round(np.mean(mat1.std(axis=-1)), 4), mat2.std(axis=-1))
 
     num_inst, num_generation, dim = mat2.shape
 
@@ -212,10 +219,9 @@ def measure(dataset, metric):
     dist = calculate_distance(mat1, mat2, metric).reshape((-1, num_generation))
     return dist
 
-
-def overall_analysis(dataset, metric):
+def overall_analysis(dataset, metric, sorted=False):
     # metric: 'cosine_distance', 'kl_divergence', 'ks_divergence', 'variance'
-    dist = measure(dataset, metric)
+    dist = measure(dataset, metric, sorted=sorted)
 
     unchange, change = [], []
     if metric == 'variance':

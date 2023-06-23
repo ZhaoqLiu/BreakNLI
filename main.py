@@ -10,33 +10,36 @@ from utils import overall_analysis
 
 
 def main(dataset, test=False):
-    drive_path = '/content/drive/MyDrive/Thesis/Implementation'
+
+    drive_path = './'
+
     if test:
-        dataset_path = os.path.join(drive_path, 'data/{}_g.pickle'.format(dataset))
-        result_path = os.path.join(drive_path, 'results/test.xlsx'.format(dataset))
-        dataset_save_path = os.path.join(drive_path, 'results/test_dict.pickle'.format(dataset))
-        log_file = os.path.join(drive_path, 'logs/test.log'.format(dataset))
+      dataset_path = os.path.join(drive_path, 'data/{}_g.pickle'.format(dataset))
+      result_path = os.path.join(drive_path, 'results/test.xlsx'.format(dataset))
+      dataset_save_path = os.path.join(drive_path, 'results/test_dict.pickle'.format(dataset))
+      log_file = os.path.join(drive_path, 'logs/test.log'.format(dataset))
     else:
-        dataset_path = os.path.join(drive_path, 'data/{}_g.pickle'.format(dataset))
-        result_path = os.path.join(drive_path, 'results/{}.xlsx'.format(dataset))
-        dataset_save_path = os.path.join(drive_path, 'results/{}_result_dict.pickle'.format(dataset))
-        log_file = os.path.join(drive_path, 'logs/{}.log'.format(dataset))
+      dataset_path = os.path.join(drive_path, 'data/{}_g.pickle'.format(dataset))
+      result_path = os.path.join(drive_path, 'results/{}.xlsx'.format(dataset))
+      dataset_save_path = os.path.join(drive_path, 'results/{}_result_dict.pickle'.format(dataset))
+      log_file = os.path.join(drive_path, 'logs/{}.log'.format(dataset))
 
     log_file = open(log_file, "a+")
     stdout_backup = sys.stdout
     sys.stdout = log_file
 
+
     nli_prompt = 'Read the following and determine if the hypothesis can be inferred from the premise: Premise: <premise> Hypothesis: <hypothesis>'
     nli_models_bs = {
-        'flan-t5-base': 1024,
-        'flan-t5-large': 512,
-        'flan-t5-xl': 64,
+        #'flan-t5-base': 1024,
+        #'flan-t5-large': 512,
+        #'flan-t5-xl': 64,
         'bart-large-mnli': 128,
-        'roberta-large-mnli': 1024,
-        'distilbart-mnli-12-1': 1024,
-        'deberta-base-mnli': 1024,
-        'deberta-large-mnli': 512,
-        'deberta-xlarge-mnli': 256
+        'roberta-large-mnli': 256,
+        'distilbart-mnli-12-1': 256,
+        'deberta-base-mnli': 256,
+        'deberta-large-mnli': 128,
+        'deberta-xlarge-mnli': 128
     }
 
     if os.path.exists(result_path):
@@ -54,19 +57,19 @@ def main(dataset, test=False):
 
         for switch in [True]:
             results = evaluate(dataset_path,
-                               model, nli_prompt,
-                               evaluate_positive_statement=switch,
-                               take_correct_nli=True,
-                               model_saved_path=None,
-                               batch_size=bs,
-                               test=test)
+                          model, nli_prompt,
+                          evaluate_positive_statement=switch,
+                          take_correct_nli=True,
+                          model_saved_path=None,
+                          batch_size=bs,
+                          test=test)
 
             result_table[model] += results[0]
 
             new_dataset = results[1]
             output_recorder[model] = new_dataset
 
-            metrics = ['cosine_distance', 'kl_divergence', 'ks_divergence', 'variance']
+            metrics = ['cosine_distance', 'js_divergence', 'ks_divergence', 'variance']
             if model.startswith('flan'):
                 result_table[model] += ['-' for _ in metrics]
             else:

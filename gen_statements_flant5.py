@@ -6,27 +6,42 @@ from utils import *
 
 
 # generate contradicting statement of hypothesis using Flan-T5 of huggingface
-def gen_statements_flant5(prems, hypos, prompt, num_generation, flant5, tokenizer, verbose=True):
-    input_texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo) \
-                   for prem, hypo in zip(prems, hypos)]
+def gen_statements_flant5(prems, hypos, prompt, num_generation,
+            flant5, tokenizer, use_stricter_generation_param=False,
+            verbose=True, use_sampling=False):
+    input_texts = [prompt.replace('<premise>', prem).replace('<hypothesis>', hypo)\
+                    for prem, hypo in zip(prems, hypos)]
+
 
     if verbose:
-        print('Generating using prompt: %s' % prompt)
+        print('Generating using prompt: %s' %prompt)
     inputs = tokenizer(input_texts, return_tensors="pt", padding=True).to(device)
 
-    generation_config = GenerationConfig(
-        num_beams=num_generation,
-        temperature=0.6,
-        num_return_sequences=num_generation
-    )
+    if use_stricter_generation_param:
+        generation_config = GenerationConfig(
+            num_beams=num_generation,
+            temperature=0.3,
+            num_beam_groups=int(num_generation/2),
+            diversity_penalty=0.9,
+            max_new_tokens=40,
+            num_return_sequences=num_generation
+        )
 
-    # generation_config = GenerationConfig(
-    #    do_sample=True,
-    #    top_p=0.92,
-    #    top_k=20,
-    #    temperature=0.4,
-    #    num_return_sequences=num_generation
-    # )
+    elif use_sampling:
+        generation_config = GenerationConfig(
+            do_sample = True,
+            max_length = 50,
+            top_k=40,
+            temperature=0.9
+        )
+
+    else:
+        generation_config = GenerationConfig(
+            max_new_tokens=40,
+            num_beams=num_generation,
+            temperature=0.7,
+            num_return_sequences=num_generation
+        )
 
     start = time.time()
     outputs = flant5.generate(**inputs, generation_config=generation_config)
@@ -34,31 +49,32 @@ def gen_statements_flant5(prems, hypos, prompt, num_generation, flant5, tokenize
 
     generated_texts = np.array(tokenizer.batch_decode(outputs, skip_special_tokens=True)).reshape(-1, num_generation)
     if verbose:
-        print('Generation for %d hypotheses completed!' % (len(generated_texts)))
-        print('%.4fs for each generation' % ((end - start) / len(input_texts)))
+        print('Generation for %d hypotheses completed!' %(len(generated_texts)))
+        print('%.4fs for each generation' %((end-start)/len(input_texts)))
 
     del flant5, inputs, outputs
     torch.cuda.empty_cache()
     return generated_texts
 
 
-def generate_raw_statements(dataset_name, lan_model,
+def generate_raw_statements(dataset_name, lan_model, 
                             gen_prompts, batch_size,
                             data_dir,
-                            generation_size=10,
+                            generation_size=10, 
                             model_saved_path=None,
                             placeholder='<PH>'):
+
     print('Generation prompt:', gen_prompts)
     print('Dataset:', dataset_name)
-
+    
     dataset = fetch_and_organize_data(dataset_name, True)['validation']
 
     for key, value in dataset.items():
-        dataset[key] = dataset[key]
+      dataset[key] = dataset[key]
 
     premises = batch_it(dataset['premise'], batch_size=batch_size, keep_tail=True)
     hypotheses = batch_it(dataset['hypothesis'], batch_size=batch_size, keep_tail=True)
-
+    
     lan_model = 'google/' + lan_model
     model_load_path = lan_model if model_saved_path is None else model_saved_path
     model = AutoModelForSeq2SeqLM.from_pretrained(model_load_path).to(device)
@@ -69,29 +85,30 @@ def generate_raw_statements(dataset_name, lan_model,
         generated_text_set = None
         jdx = 0
         for batch, (prem, hypo) in tqdm(enumerate(zip(premises, hypotheses)),
-                                        total=len(premises), desc='Processing batches'):
+                               total=len(premises), desc='Processing batches'):
             generated_texts = np.hstack((
                 gen_statements_flant5(prem, hypo, gen_prompt[0],
-                                      generation_size, model,
-                                      tokenizer, verbose=False),
-                gen_statements_flant5(prem, hypo, gen_prompt[1],
-                                      generation_size, model,
-                                      tokenizer, verbose=False)
+                           generation_size+4, model,
+                           tokenizer, verbose=False),
+                gen_statements_flant5(prem, hypo, gen_prompt[0],
+                           generation_size+4, model,
+                           tokenizer, verbose=False,
+                           use_stricter_generation_param=True)
             ))
-
+            
             for i, generation_set in enumerate(generated_texts):
                 unique_sents = list(set(generation_set))
                 if hypo[i] in unique_sents:
-                    unique_sents.remove(hypo[i])
-
+                  unique_sents.remove(hypo[i])
+                
                 if len(unique_sents) < generation_size:
-                    repeat_idx.append(jdx)
-                    unique_sents = np.array([placeholder for _ in range(generation_size)])
+                  repeat_idx.append(jdx)
+                  unique_sents = np.array([placeholder for _ in range(generation_size)])
                 else:
-                    random_idx = np.random.choice(np.arange(len(unique_sents)), size=generation_size)
-                    unique_sents = np.array(unique_sents)[random_idx]
+                  random_idx = np.random.choice(np.arange(len(unique_sents)), size=generation_size, replace=False)
+                  unique_sents = np.array(unique_sents)[random_idx]
                 jdx += 1
-
+            
                 if generated_text_set is None:
                     generated_text_set = unique_sents[np.newaxis, ...]
                 else:
@@ -99,21 +116,20 @@ def generate_raw_statements(dataset_name, lan_model,
             torch.cuda.empty_cache()
 
         dataset['g_hypotheses_{}'.format(key[:3])] = generated_text_set
-
+    
     full_idx = np.arange(len(dataset['label']))
-    for idx in repeat_idx:
-        full_idx = np.delete(full_idx, np.where(full_idx == idx))
-    print(
-        '%d instances were deprecated because of repetitive generation.' % (len(dataset['label']) - full_idx.shape[0]))
-    for key, value in dataset.items():
-        dataset[key] = dataset[key][full_idx]
-
+    #for idx in repeat_idx:
+    #    full_idx = np.delete(full_idx, np.where(full_idx==idx))
+    print('%d repetitive instances.' %(len(repeat_idx)))
+    #for key, value in dataset.items():
+    #    dataset[key] = dataset[key][full_idx]
+      
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
     with open(os.path.join(data_dir, '{}_g.pickle'.format(dataset_name)), 'wb') as f:
         pickle.dump(dataset, f)
-
-    return dataset
+    
+    return dataset, repeat_idx
 
 
 if __name__ == '__main__':
@@ -172,7 +188,7 @@ if __name__ == '__main__':
         data_dir = './data'
         # data_dir = '/content/drive/MyDrive/Thesis/Implementation/data'
         model_saved_path = '/content/drive/MyDrive/Thesis/Implementation/Model'
-        dataset = generate_raw_statements('mnli', lan_model,
+        dataset, repeat_idx = generate_raw_statements('mnli', lan_model,
                                           gen_prompt, batch_size,
                                           data_dir,
                                           generation_size=10,
