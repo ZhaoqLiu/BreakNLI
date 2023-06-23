@@ -37,7 +37,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', type=str, default='mnli',
                         choices=['mnli', 'snli', 'anli', 'qnli'],
                         help='name of the NLI dataset')
-    parser.add_argument('-nm', '--nlimodel', type=str, default='flan_t5_base',
+    parser.add_argument('-nm', '--nlimodel', type=str, default='bart_large_mnli',
                         choices=['flan_t5_base', 'flan_t5_large', 'flan_t5_xl',
                                  'flan_t5_xxl', 'bart_large_mnli', 'roberta_large_mnli',
                                  'distilbart_mnli_12-1', 'deberta_base_mnli',
