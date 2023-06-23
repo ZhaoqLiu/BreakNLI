@@ -3,8 +3,8 @@ This project concerns the evaluation of NLI systems. The setting could be formul
 1. Given an NLI dataset $D= \lbrace(x_1, y_1),...,(x_n, y_n) \rbrace$, where we have the premise-hypothesis pair $x_i=\lbrace p_i, h_i\rbrace$ and the label $y_i \in \lbrace Entailment, Contradiction, Neutral \rbrace$, and an NLI model $M$, where $M(p_i, h_i)=\hat{y}_i$ w.r.t. true label $y_i$.
 2. Pick out pairs that $M(p, h)=\hat y=y$.
 2. Using `Flan-T5-xl` (referred to $G$), generate 5 statements that are symmetrically equivalent to the original hypothesis, namely $G(h_i)=\lbrace h_i^1, ...,h_i^k,..., h_i^5 \rbrace$ and $M(h_i,h_i^k)=M(h_i^k,h_i)=Entailment$.
-3. Evaluate whether the following triangle are held by $M(p_i, h_i^k)$.
-![Image text](imgs/triangles2.pdf)
+3. Evaluate whether the following triangle is held by $M(p_i, h_i^k)$.
+![Image text](imgs/triangle.pdf)
 
 ```mermaid
 flowchart LR
